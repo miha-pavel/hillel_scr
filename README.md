@@ -23,33 +23,6 @@ git clone https://github.com/miha-pavel/hillel_scr.git
 ```
 
 
-## Run Django project
-```
-python manage.py runserver
-```
-
-Or use makefile guide
-
-
-## Makefile guide
-* ```make run``` - will run Django developer server at 8000 port
-* ```make test``` - will test the project with --keepdb option
-* ```make pep8``` - will check the code with pylint
-* ```make check``` - will check
-* ```make sh_p``` - will run django shell_plus
-* ```make migrate``` - will run django "./manage.py migrate" command
-* ```make celery``` - will run celery
-* ```make celery_beat``` - will run celerybeat
-* ```make rabbit``` - will run rabbitmq brocker
-* ```make dc``` - will run docker-compose
-
-
-## Default super user
-* Username: admin
-* Email address: admin@admin.com
-* Password: admin
-
-
 ### Домашнее задание 21
 Добавлено: 19.03.2020 21:50
 Дописать парсер
