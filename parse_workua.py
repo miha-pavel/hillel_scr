@@ -14,19 +14,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from utils import random_sleep, save_info
 
 
-# conn = sqlite3.connect('workua_data.sqlite')
-# cursor = conn.cursor()
+conn = sqlite3.connect('workua_data.sqlite')
+cursor = conn.cursor()
 
 
 try:
     cursor.execute('''CREATE TABLE workua_data (
-        title nvarchar(400),
+        title text,
         salary text,
-        company nvarchar(40),
-        location nvarchar(40),
-        condition nvarchar(40),
+        company text,
+        location text,
+        condition text,
         phone text,
-        description nvarchar(400))''')
+        description longtext)''')
 except:
     pass
 
@@ -37,6 +37,8 @@ ROOT_PATH = '/ru/jobs/'
 
 def main():
     page = 1
+    result = []
+    result_list = []
     while True:
         page += 1
         payload = {
@@ -65,7 +67,6 @@ def main():
         if not cards:
             cards = soup.find_all('div', class_=class_ + ' js-hot-block')
 
-        result = []
         if not cards:
             break
 
@@ -114,13 +115,11 @@ def main():
             contact_phone = soup.find(id="contact-phone")
             if contact_phone:
                 webdriver_options = Options()
-                # webdriver_options.add_argument('--headless')
                 driver = webdriver.Chrome(options=webdriver_options)
                 driver.get(vacancy_url)
                 WebDriverWait(driver, 30).until(ec.visibility_of_element_located((By.ID, 'contact-phone')))
                 driver.find_element_by_class_name('js-get-phone').click()
                 opened_phone = driver.find_element_by_id('contact-phone')
-                # phone_data = ''
                 try:
                     phone_data = opened_phone.find_element_by_tag_name('a').text
                 except:
@@ -133,7 +132,7 @@ def main():
                 description_data = " ".join(description_block.get_text().split())
             except:
                 description_data = None
-            
+            # Load data
             result.append({
                 'title': title,
                 'salary': salary_data,
@@ -143,14 +142,16 @@ def main():
                 'phone': phone_data,
                 'description': description_data,
                 })
+            result_list.append((title, salary_data, company_data, location_data, condition_data, phone_data, description_data))
 
-            # cursor.execute(f"INSERT INTO workua_data (title, salary, company, location, condition, phone, description) VALUES ({title}, {salary_data}, {company_data}, {location_data}, {condition_data}, {phone_data}, {description_data})")
-            # conn.commit()
-            # cursor.close()
-            # conn.close()
+    cursor.executemany(f'INSERT INTO workua_data (title, salary, company, location, condition, phone, description) VALUES (?, ?, ?, ?, ?, ?, ?)', result_list)
+    conn.commit()
+    cursor.close()
+    conn.close()
         
     with open('workua_data.txt', 'w') as outfile:
         json.dump(result, outfile, ensure_ascii=False)
+
 
 if __name__ == "__main__":
     main()
